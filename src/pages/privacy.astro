@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Chính sách bảo mật — Tin Tức Hub" description="Chính sách bảo mật và sử dụng dữ liệu">
+  <h1>Chính sách bảo mật</h1>
+  <div class="post-content">
+    <p>Cập nhật lần cuối: {new Date().toLocaleDateString('vi-VN')}</p>
+
+    <h2>1. Thu thập thông tin</h2>
+    <p>Tin Tức Hub là trang web tĩnh không thu thập thông tin cá nhân của người dùng. Chúng tôi không sử dụng cookies theo dõi hành vi.</p>
+
+    <h2>2. Logs server</h2>
+    <p>Server hosting (Vercel) có thể tự động lưu log truy cập tiêu chuẩn (IP, user-agent, timestamp) cho mục đích vận hành. Logs này không liên kết với danh tính cá nhân.</p>
+
+    <h2>3. Nội dung tham khảo</h2>
+    <p>Các bài viết trên trang có thể chứa liên kết đến nguồn bên ngoài. Tin Tức Hub không chịu trách nhiệm về nội dung của các trang bên thứ ba.</p>
+
+    <h2>4. Liên hệ</h2>
+    <p>Mọi thắc mắc về chính sách bảo mật, vui lòng tham khảo trang <a href="/about">Giới thiệu</a>.</p>
+  </div>
+</BaseLayout>

@@ -1,14 +1,25 @@
-# tin-tuc-hub
+# Tin Tức Hub
 
-Astro static site, auto-deploys to Vercel on git push.
+Trang tổng hợp tin tức và bài viết tham khảo, xây dựng bằng [Astro](https://astro.build).
 
-## Structure
-- `src/content/posts/*.md` — each markdown = 1 post
-- `src/pages/index.astro` — homepage with post list
-- `src/pages/posts/[...slug].astro` — dynamic post route
-- Auto sitemap at `/sitemap-index.xml`
-- RSS at `/rss.xml`
+## Tính năng
 
-## Deploy
-1. Push to main → Vercel auto-builds + deploys
-2. Live at `https://tin-tuc-hub.vercel.app`
+- Static site, deploy auto qua Vercel
+- Sitemap + RSS feed tự động
+- Phân trang, tags, related posts
+- SEO-optimized (Open Graph, Twitter Card, Schema.org)
+- Responsive design
+
+## Phát triển
+
+```bash
+npm install
+npm run dev
+```
+
+## Cấu trúc
+
+- `src/content/posts/*.md` — Bài viết (markdown)
+- `src/pages/` — Routes
+- `src/layouts/BaseLayout.astro` — Layout chung
+- `src/components/` — UI components

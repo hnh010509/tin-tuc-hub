@@ -1,21 +1,36 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
 import { getCollection } from 'astro:content';
 
-const posts = (await getCollection('posts')).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-);
+const allPosts = (await getCollection('posts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const POSTS_PER_PAGE = 12;
+const posts = allPosts.slice(0, POSTS_PER_PAGE);
+const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
 ---
-<BaseLayout title="tin-tuc-hub — Reference Collection" description="Curated reference resources">
-  <h1>Reference Collection</h1>
-  <p>Browse {posts.length} curated reference posts below.</p>
-  <ul class="posts">
-    {posts.map(p => (
-      <li>
-        <a href={`/posts/${p.slug}/`}><strong>{p.data.title}</strong></a>
-        <div class="meta">{p.data.pubDate.toLocaleDateString('en-CA')}{p.data.tags.length > 0 ? ' · ' + p.data.tags.join(', ') : ''}</div>
-        {p.data.description && <div>{p.data.description}</div>}
-      </li>
-    ))}
-  </ul>
+<BaseLayout
+  title="Tin Tức Hub — Tổng hợp tin tức tham khảo"
+  description="Cập nhật tin tức, bài viết và phân tích chuyên sâu hàng ngày từ nhiều nguồn tham khảo."
+>
+  <section class="hero">
+    <div class="container">
+      <h1>Tin Tức Hub</h1>
+      <p>Tổng hợp tin tức, bài viết tham khảo và phân tích chuyên sâu. {allPosts.length} bài viết.</p>
+    </div>
+  </section>
+
+  <h2>Bài viết mới nhất</h2>
+  {posts.map(post => <PostCard post={post} />)}
+
+  {totalPages > 1 && (
+    <nav class="pagination" aria-label="Phân trang">
+      <span class="current">1</span>
+      {Array.from({ length: Math.min(totalPages - 1, 4) }).map((_, i) => (
+        <a href={`/page/${i + 2}/`}>{i + 2}</a>
+      ))}
+      {totalPages > 5 && <span>…</span>}
+      <a href={`/page/${totalPages}/`}>Cuối ({totalPages})</a>
+    </nav>
+  )}
 </BaseLayout>

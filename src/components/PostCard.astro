@@ -1,0 +1,19 @@
+---
+const { post } = Astro.props;
+const date = post.data.pubDate.toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+<article class="post-card">
+  <h2><a href={`/posts/${post.slug}/`}>{post.data.title}</a></h2>
+  <div class="post-meta">
+    <span>{date}</span>
+    {post.data.tags.length > 0 && (
+      <>
+        <span> · </span>
+        {post.data.tags.slice(0, 3).map(tag => (
+          <a class="tag-badge" href={`/tags/${tag}/`}>{tag}</a>
+        ))}
+      </>
+    )}
+  </div>
+  {post.data.description && <p class="post-excerpt">{post.data.description}</p>}
+</article>

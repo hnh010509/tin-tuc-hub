@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('posts', ({ data }) => !data.draft);
+const tagMap = new Map();
+posts.forEach(p => p.data.tags.forEach(t => tagMap.set(t, (tagMap.get(t) || 0) + 1)));
+const tags = Array.from(tagMap.entries()).sort((a, b) => b[1] - a[1]);
+---
+<BaseLayout
+  title="Tất cả chủ đề — Tin Tức Hub"
+  description={`Khám phá ${tags.length} chủ đề bài viết`}
+>
+  <h1>Tất cả chủ đề ({tags.length})</h1>
+  <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin:1.5rem 0">
+    {tags.map(([tag, count]) => (
+      <a class="tag-badge" href={`/tags/${tag}/`} style="font-size:0.95rem;padding:6px 14px">
+        {tag} <span style="opacity:0.7">({count})</span>
+      </a>
+    ))}
+  </div>
+</BaseLayout>

@@ -1,0 +1,31 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  const tags = new Set();
+  posts.forEach(p => p.data.tags.forEach(t => tags.add(t)));
+  return Array.from(tags).map(tag => ({
+    params: { tag: String(tag) },
+    props: {
+      tag,
+      posts: posts
+        .filter(p => p.data.tags.includes(String(tag)))
+        .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+    }
+  }));
+}
+
+const { tag, posts } = Astro.props;
+---
+<BaseLayout
+  title={`${tag} — Tin Tức Hub`}
+  description={`${posts.length} bài viết về chủ đề ${tag}`}
+>
+  <h1>Chủ đề: {tag}</h1>
+  <p style="color:#6b7280">{posts.length} bài viết</p>
+  {posts.map(post => <PostCard post={post} />)}
+  <p style="margin-top:2rem"><a href="/tags">← Xem tất cả chủ đề</a></p>
+</BaseLayout>

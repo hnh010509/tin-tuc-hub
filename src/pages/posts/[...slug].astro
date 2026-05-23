@@ -3,25 +3,67 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts');
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
   return posts.map(p => ({ params: { slug: p.slug }, props: { post: p } }));
 }
 
 const { post } = Astro.props;
 const { Content } = await post.render();
+const date = post.data.pubDate.toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' });
+
+// Related posts: same tags, exclude self
+const allPosts = await getCollection('posts', ({ data }) => !data.draft);
+const related = allPosts
+  .filter(p => p.slug !== post.slug && p.data.tags.some(t => post.data.tags.includes(t)))
+  .slice(0, 3);
 ---
-<BaseLayout title={post.data.title} description={post.data.description || post.data.title}>
+<BaseLayout
+  title={`${post.data.title} — Tin Tức Hub`}
+  description={post.data.description || post.data.title}
+  ogType="article"
+  publishedTime={post.data.pubDate.toISOString()}
+>
   <article>
-    <h1>{post.data.title}</h1>
-    <div class="meta">
-      Published {post.data.pubDate.toLocaleDateString('en-CA')}
-      {post.data.tags.length > 0 ? ' · Tags: ' + post.data.tags.join(', ') : ''}
+    <header style="margin-bottom: 2rem">
+      <h1>{post.data.title}</h1>
+      <div class="post-meta" style="margin-top:0.5rem">
+        <span>{date}</span>
+        <span> · </span>
+        <span>Tác giả: {post.data.author}</span>
+        {post.data.tags.length > 0 && (
+          <>
+            <br/>
+            <div style="margin-top:0.5rem">
+              {post.data.tags.map(tag => (
+                <a class="tag-badge" href={`/tags/${tag}/`}>{tag}</a>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+    </header>
+
+    <div class="post-content">
+      <Content />
     </div>
-    <Content />
+
     {post.data.sourceUrl && (
-      <p style="margin-top:2rem;padding-top:1rem;border-top:1px solid #eee">
-        <strong>Original source:</strong> <a href={post.data.sourceUrl} rel="noopener">{post.data.sourceUrl}</a>
-      </p>
+      <aside style="margin-top:2rem;padding:1rem;background:#f3f4f6;border-radius:8px;border-left:4px solid #2563eb">
+        <strong>📎 Nguồn tham khảo:</strong><br/>
+        <a href={post.data.sourceUrl} rel="noopener nofollow">{post.data.sourceUrl}</a>
+      </aside>
     )}
   </article>
+
+  {related.length > 0 && (
+    <section style="margin-top:3rem;padding-top:2rem;border-top:1px solid #e5e7eb">
+      <h2>Bài viết liên quan</h2>
+      {related.map(p => (
+        <article class="post-card">
+          <h3 style="margin:0"><a href={`/posts/${p.slug}/`}>{p.data.title}</a></h3>
+          {p.data.description && <p class="post-excerpt">{p.data.description}</p>}
+        </article>
+      ))}
+    </section>
+  )}
 </BaseLayout>

@@ -1,0 +1,16 @@
+---
+const nav = [
+  { href: '/', label: 'Trang chủ' },
+  { href: '/tags', label: 'Chủ đề' },
+  { href: '/about', label: 'Giới thiệu' },
+  { href: '/rss.xml', label: 'RSS' }
+];
+---
+<header class="site-header">
+  <div class="container">
+    <div class="site-title"><a href="/">Tin Tức Hub</a></div>
+    <nav class="main-nav">
+      {nav.map(item => <a href={item.href}>{item.label}</a>)}
+    </nav>
+  </div>
+</header>

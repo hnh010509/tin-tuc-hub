@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const allPosts = (await getCollection('posts', ({ data }) => !data.draft))
+    .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+  const POSTS_PER_PAGE = 12;
+  const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
+  return Array.from({ length: totalPages }, (_, i) => ({
+    params: { page: String(i + 1) },
+    props: {
+      pageNum: i + 1,
+      totalPages,
+      posts: allPosts.slice(i * POSTS_PER_PAGE, (i + 1) * POSTS_PER_PAGE)
+    }
+  }));
+}
+
+const { pageNum, totalPages, posts } = Astro.props;
+---
+<BaseLayout
+  title={`Trang ${pageNum} — Tin Tức Hub`}
+  description={`Trang ${pageNum} của ${totalPages} — bài viết tham khảo`}
+>
+  <h1>Bài viết · Trang {pageNum}</h1>
+  {posts.map(post => <PostCard post={post} />)}
+
+  <nav class="pagination" aria-label="Phân trang">
+    {pageNum > 1 && <a href={pageNum === 2 ? '/' : `/page/${pageNum - 1}/`}>← Trước</a>}
+    {Array.from({ length: totalPages }, (_, i) => i + 1)
+      .filter(n => n === 1 || n === totalPages || Math.abs(n - pageNum) <= 2)
+      .map(n => n === pageNum
+        ? <span class="current">{n}</span>
+        : <a href={n === 1 ? '/' : `/page/${n}/`}>{n}</a>
+      )}
+    {pageNum < totalPages && <a href={`/page/${pageNum + 1}/`}>Sau →</a>}
+  </nav>
+</BaseLayout>
