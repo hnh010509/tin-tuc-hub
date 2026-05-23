@@ -2,30 +2,43 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostCard from '../../components/PostCard.astro';
 import { getCollection } from 'astro:content';
+import { slugify } from '../../utils/slugify';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts', ({ data }) => !data.draft);
-  const tags = new Set();
-  posts.forEach(p => p.data.tags.forEach(t => tags.add(t)));
-  return Array.from(tags).map(tag => ({
-    params: { tag: String(tag) },
+  const tagBySlug = new Map<string, { display: string; posts: any[] }>();
+
+  posts.forEach(p => {
+    p.data.tags.forEach((tag: string) => {
+      const s = slugify(tag);
+      if (!tagBySlug.has(s)) tagBySlug.set(s, { display: tag, posts: [] });
+      tagBySlug.get(s)!.posts.push(p);
+    });
+  });
+
+  return Array.from(tagBySlug.entries()).map(([s, { display, posts: tagPosts }]) => ({
+    params: { tag: s },
     props: {
-      tag,
-      posts: posts
-        .filter(p => p.data.tags.includes(String(tag)))
-        .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+      tag: display,
+      posts: tagPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
     }
   }));
 }
 
 const { tag, posts } = Astro.props;
+const breadcrumbs = [
+  { name: 'Trang chủ', href: '/' },
+  { name: 'Chủ đề', href: '/tags/' },
+  { name: tag, href: `/tags/${slugify(tag)}/` }
+];
 ---
 <BaseLayout
   title={`${tag} — Tin Tức Hub`}
   description={`${posts.length} bài viết về chủ đề ${tag}`}
+  breadcrumbs={breadcrumbs}
 >
   <h1>Chủ đề: {tag}</h1>
   <p style="color:#6b7280">{posts.length} bài viết</p>
   {posts.map(post => <PostCard post={post} />)}
-  <p style="margin-top:2rem"><a href="/tags">← Xem tất cả chủ đề</a></p>
+  <p style="margin-top:2rem"><a href="/tags/">← Xem tất cả chủ đề</a></p>
 </BaseLayout>

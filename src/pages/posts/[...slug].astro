@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { slugify } from '../../utils/slugify';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts', ({ data }) => !data.draft);
@@ -8,22 +9,20 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content, headings } = await post.render();
+const { Content } = await post.render();
 const date = post.data.pubDate.toLocaleDateString('vi-VN', { year: 'numeric', month: 'long', day: 'numeric' });
 
-// Reading time estimate (200 wpm for Vietnamese)
 const wordCount = post.body.trim().split(/\s+/).length;
 const readingTime = Math.max(1, Math.ceil(wordCount / 200));
 
-// Related posts
 const allPosts = await getCollection('posts', ({ data }) => !data.draft);
 const related = allPosts
-  .filter(p => p.slug !== post.slug && p.data.tags.some(t => post.data.tags.includes(t)))
+  .filter(p => p.slug !== post.slug && p.data.tags.some((t: string) => post.data.tags.includes(t)))
   .slice(0, 3);
 
 const breadcrumbs = [
   { name: 'Trang chủ', href: '/' },
-  ...(post.data.tags[0] ? [{ name: post.data.tags[0], href: `/tags/${post.data.tags[0]}/` }] : []),
+  ...(post.data.tags[0] ? [{ name: post.data.tags[0], href: `/tags/${slugify(post.data.tags[0])}/` }] : []),
   { name: post.data.title, href: `/posts/${post.slug}/` }
 ];
 ---
@@ -46,8 +45,8 @@ const breadcrumbs = [
         <span>⏱ {readingTime} phút đọc</span>
         {post.data.tags.length > 0 && (
           <div style="margin-top:0.75rem">
-            {post.data.tags.map(tag => (
-              <a class="tag-badge" href={`/tags/${tag}/`} rel="tag">{tag}</a>
+            {post.data.tags.map((tag: string) => (
+              <a class="tag-badge" href={`/tags/${slugify(tag)}/`} rel="tag">{tag}</a>
             ))}
           </div>
         )}
