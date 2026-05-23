@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const recent = (await getCollection('posts', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 5);
+---
+<BaseLayout
+  title="404 — Không tìm thấy trang | Tin Tức Hub"
+  description="Trang bạn tìm không tồn tại"
+>
+  <Fragment slot="head">
+    <meta name="robots" content="noindex, follow" />
+  </Fragment>
+  <div style="text-align:center;padding:3rem 0">
+    <h1 style="font-size:3rem;margin:0">404</h1>
+    <p style="font-size:1.2rem;color:#6b7280">Trang này không tồn tại hoặc đã bị di chuyển.</p>
+    <p style="margin-top:1.5rem">
+      <a class="btn" href="/">Về trang chủ</a>
+    </p>
+  </div>
+  {recent.length > 0 && (
+    <section style="margin-top:3rem">
+      <h2>Bài viết mới nhất</h2>
+      {recent.map(p => (
+        <article class="post-card">
+          <h3 style="margin:0;font-size:1.05rem"><a href={`/posts/${p.slug}/`}>{p.data.title}</a></h3>
+        </article>
+      ))}
+    </section>
+  )}
+</BaseLayout>
