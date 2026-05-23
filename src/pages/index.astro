@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('posts')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+---
+<BaseLayout title="tin-tuc-hub — Reference Collection" description="Curated reference resources">
+  <h1>Reference Collection</h1>
+  <p>Browse {posts.length} curated reference posts below.</p>
+  <ul class="posts">
+    {posts.map(p => (
+      <li>
+        <a href={`/posts/${p.slug}/`}><strong>{p.data.title}</strong></a>
+        <div class="meta">{p.data.pubDate.toLocaleDateString('en-CA')}{p.data.tags.length > 0 ? ' · ' + p.data.tags.join(', ') : ''}</div>
+        {p.data.description && <div>{p.data.description}</div>}
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
