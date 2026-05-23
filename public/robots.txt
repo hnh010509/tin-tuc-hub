@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tin-tuc-hub.vercel.app/sitemap-index.xml
+Sitemap: https://tin-tuc-hub.pages.dev/sitemap-index.xml
